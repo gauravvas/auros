@@ -1,5 +1,8 @@
-import { redirect } from 'next/navigation';
-
-export default function Home(): never {
-  redirect('/dashboard');
+export default function Home() {
+  return (
+    <iframe
+      src="/app.html"
+      style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+    />
+  );
 }

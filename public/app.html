@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUROS — Enterprise Digital Asset Accounting Intelligence</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0D1B2A;--navy2:#132033;--navy3:#1A2D45;--navy4:#1E3550;
+  --blue:#2563EB;--blue2:#3B82F6;--ice:#CADCFC;
+  --gold:#F59E0B;--gold2:#FBBF24;--gold3:#FDE68A;
+  --green:#10B981;--red:#EF4444;--purple:#8B5CF6;--cyan:#06B6D4;
+  --white:#FFFFFF;--off:#F1F5F9;
+  --t1:#E2E8F0;--t2:#94A3B8;--t3:#64748B;
+  --sidebar:240px;--hdr:56px
+}
+body{background:var(--navy);color:var(--white);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;overflow:hidden;display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--navy2);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.logo-area{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-hex{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:var(--navy);letter-spacing:-1px}
+.logo-name{font-size:20px;font-weight:800;letter-spacing:.5px;background:linear-gradient(90deg,var(--gold2),var(--white));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-tag{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
+.sb-section{padding:12px 10px 4px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px;font-weight:600}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 6px;border-radius:7px;cursor:pointer;transition:.15s;color:var(--t2);font-size:13px;font-weight:500;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.05);color:var(--white)}
+.sb-item.active{background:rgba(245,158,11,.1);color:var(--gold2);border-left:3px solid var(--gold)}
+.sb-item.active .sb-icon{color:var(--gold)}
+.sb-icon{font-size:15px;width:18px;text-align:center}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700}
+.sb-badge.gold{background:var(--gold);color:var(--navy)}
+.sb-badge.green{background:var(--green)}
+.sb-footer{margin-top:auto;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:var(--t3)}
+.sb-footer .env{color:var(--gold2);font-weight:600}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:var(--hdr);background:var(--navy2);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;color:var(--white)}
+.topbar-sub{font-size:12px;color:var(--t3);margin-left:4px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.pill.amber{background:rgba(245,158,11,.1);color:var(--gold2);border-color:rgba(245,158,11,.3)}
+.pill.red{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.3)}
+.avatar{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── PAGES ── */
+.page{display:none}.page.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--navy2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px}
+.card-sm{background:var(--navy3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:16px}
+.card-title{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.kpi-val{font-size:28px;font-weight:800;line-height:1}
+.kpi-sub{font-size:11px;color:var(--t3);margin-top:6px}
+.kpi-change{font-size:12px;margin-top:4px;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,.07)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:var(--navy3);padding:10px 14px;text-align:left;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04)}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody td{padding:10px 14px;color:var(--t1);vertical-align:middle}
+.mono{font-family:'Courier New',monospace;font-size:11.5px}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge-amber{background:rgba(245,158,11,.12);color:var(--gold2);border:1px solid rgba(245,158,11,.25)}
+.badge-blue{background:rgba(37,99,235,.15);color:var(--blue2);border:1px solid rgba(37,99,235,.25)}
+.badge-purple{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.25)}
+.badge-cyan{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
+
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--gold);color:var(--navy)}
+.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:rgba(255,255,255,.07);color:var(--t1);border:1px solid rgba(255,255,255,.1)}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue2)}
+.btn-sm{padding:5px 12px;font-size:11px}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sec-hdr h2{font-size:18px;font-weight:700}
+.sec-hdr p{font-size:12px;color:var(--t3);margin-top:2px}
+
+/* ── PROGRESS BAR ── */
+.progress{background:rgba(255,255,255,.08);border-radius:4px;height:5px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:4px;transition:.4s}
+
+/* ── ASSET CHIP ── */
+.asset-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:rgba(255,255,255,.07);border-radius:20px;font-size:11px;font-weight:600}
+.asset-dot{width:7px;height:7px;border-radius:50%}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.05);padding:4px;border-radius:9px;width:fit-content;margin-bottom:18px}
+.tab{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--t3);transition:.15s}
+.tab.active{background:var(--navy3);color:var(--white)}
+.tab:hover:not(.active){color:var(--t1)}
+
+/* ── RECON ROW ── */
+.recon-match{color:var(--green);font-weight:700}
+.recon-break{color:var(--red);font-weight:700}
+.recon-warn{color:var(--gold2);font-weight:700}
+
+/* ── TRADE FEED ── */
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── JE PREVIEW ── */
+.je-preview{background:#0a1628;border:1px solid rgba(37,99,235,.3);border-radius:8px;padding:16px;font-family:'Courier New',monospace;font-size:11px;color:#a8c7fa;max-height:240px;overflow-y:auto}
+.je-preview .kw{color:#79c0ff}
+.je-preview .str{color:#a5d6ff}
+.je-preview .num{color:#e3b341}
+.je-preview .cm{color:#8b949e}
+
+/* ── CONNECTOR CARD ── */
+.conn-card{background:var(--navy3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px}
+.conn-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.conn-status{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0}
+.conn-status.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+.conn-status.warn{background:var(--gold2)}
+.conn-status.off{background:var(--t3)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid rgba(255,255,255,.06);margin:16px 0}
+
+/* ── SECTION BANNER ── */
+.banner{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(37,99,235,.08));border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.banner-icon{font-size:24px}
+.banner-text h3{font-size:14px;font-weight:700;color:var(--gold2)}
+.banner-text p{font-size:11.5px;color:var(--t2);margin-top:2px}
+
+/* ── TREASURY ── */
+.cp-bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:6px}
+.cp-fill{height:100%;border-radius:4px}
+
+/* ── SECURITY ── */
+.guardrail{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.guardrail:last-child{border-bottom:none}
+.gr-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo-area">
+    <div class="logo-row">
+      <div class="logo-hex">⬡</div>
+      <div>
+        <div class="logo-name">AUROS</div>
+        <div class="logo-tag">Digital Asset Accounting</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">Overview</div>
+  <div class="sb-item active" onclick="showPage('dashboard',this)">
+    <span class="sb-icon">◈</span> Dashboard
+  </div>
+
+  <div class="sb-section">Core Platform</div>
+  <div class="sb-item" onclick="showPage('trade',this)">
+    <span class="sb-icon">⚡</span> Trade Connect
+    <span class="sb-badge green">Live</span>
+  </div>
+  <div class="sb-item" onclick="showPage('subledger',this)">
+    <span class="sb-icon">📒</span> Subledger
+  </div>
+  <div class="sb-item" onclick="showPage('gainloss',this)">
+    <span class="sb-icon">📈</span> Gain / Loss Engine
+    <span class="sb-badge gold">HIFO</span>
+  </div>
+  <div class="sb-item" onclick="showPage('je',this)">
+    <span class="sb-icon">📄</span> Journal Entries
+    <span class="sb-badge" style="background:var(--purple);color:#fff">23</span>
+  </div>
+
+  <div class="sb-section">Finance</div>
+  <div class="sb-item" onclick="showPage('treasury',this)">
+    <span class="sb-icon">🏛</span> Treasury
+  </div>
+  <div class="sb-item" onclick="showPage('recon',this)">
+    <span class="sb-icon">⚖</span> Reconciliation
+    <span class="sb-badge">4 Breaks</span>
+  </div>
+
+  <div class="sb-section">Governance</div>
+  <div class="sb-item" onclick="showPage('security',this)">
+    <span class="sb-icon">🛡</span> Security & Guardrails
+    <span class="sb-badge green">Pass</span>
+  </div>
+
+  <div class="sb-footer">
+    <div>Environment: <span class="env">Production</span></div>
+    <div style="margin-top:4px">v2.4.1 · SOC 2 Type II</div>
+    <div style="margin-top:4px;color:var(--gold2)">gaurav.va@gmail.com</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <span id="topbar-title" class="topbar-title">Portfolio Dashboard</span>
+    <span id="topbar-sub" class="topbar-sub">· Mar 15, 2024 · 09:41 EST</span>
+    <div class="topbar-right">
+      <span class="pill">● All Systems Operational</span>
+      <span class="pill amber">⚠ 4 Recon Breaks</span>
+      <div class="avatar">GV</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ══════════════════════════════════════════════ DASHBOARD ══ -->
+    <div id="page-dashboard" class="page active">
+      <div class="banner">
+        <div class="banner-icon">⬡</div>
+        <div class="banner-text">
+          <h3>AUROS Enterprise — Digital Asset Accounting Intelligence</h3>
+          <p>Connect. Classify. Close. · One platform: Subledger + Gain/Loss + JE + Treasury + Recon</p>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">Total Portfolio Value</div>
+          <div class="kpi-val" style="color:var(--gold2)">$247.4M</div>
+          <div class="kpi-change up">↑ $3.24M (1.33%) today</div>
+          <div class="kpi-sub">Across 5 assets · 4 custodians</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Unrealized P&L</div>
+          <div class="kpi-val up">$89.2M</div>
+          <div class="kpi-change up">↑ $2.1M since yesterday</div>
+          <div class="kpi-sub">HIFO method · All open lots</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Realized P&L (YTD)</div>
+          <div class="kpi-val up">$12.34M</div>
+          <div class="kpi-change" style="color:var(--t3)">$8.2M ST · $4.1M LT</div>
+          <div class="kpi-sub">Tax-optimized · Specific ID</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Pending Journal Entries</div>
+          <div class="kpi-val" style="color:var(--purple)">23</div>
+          <div class="kpi-change amber">▲ Awaiting ERP push</div>
+          <div class="kpi-sub">NetSuite · SAP · Oracle</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <!-- Asset positions -->
+        <div class="card">
+          <div class="card-title">Asset Positions</div>
+          <table style="width:100%">
+            <thead><tr>
+              <th>Asset</th><th>Qty</th><th>Price</th><th>Value</th><th>Unr. P&L</th><th>%</th>
+            </tr></thead>
+            <tbody id="asset-table"></tbody>
+          </table>
+        </div>
+        <!-- Activity feed -->
+        <div class="card">
+          <div class="card-title" style="display:flex;align-items:center;gap:8px">
+            <span>Live Trade Activity</span>
+            <div class="live-dot"></div>
+          </div>
+          <table style="width:100%">
+            <thead><tr><th>Time</th><th>Asset</th><th>Side</th><th>Qty</th><th>$Value</th><th>Status</th></tr></thead>
+            <tbody id="activity-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <div class="grid-4">
+        <div class="card-sm">
+          <div class="card-title">Subledger Entries (Mar)</div>
+          <div style="font-size:22px;font-weight:800;color:var(--cyan)">1,284</div>
+          <div class="progress"><div class="progress-fill" style="width:85%;background:var(--cyan)"></div></div>
+          <div class="kpi-sub" style="margin-top:6px">98.7% auto-classified</div>
+        </div>
+        <div class="card-sm">
+          <div class="card-title">Recon Status</div>
+          <div style="font-size:22px;font-weight:800;color:var(--green)">96.1%</div>
+          <div class="progress"><div class="progress-fill" style="width:96%;background:var(--green)"></div></div>
+          <div class="kpi-sub" style="margin-top:6px">4 open breaks · auto-assigned</div>
+        </div>
+        <div class="card-sm">
+          <div class="card-title">Trade Connections</div>
+          <div style="font-size:22px;font-weight:800;color:var(--gold2)">5 / 5</div>
+          <div class="progress"><div class="progress-fill" style="width:100%;background:var(--gold)"></div></div>
+          <div class="kpi-sub" style="margin-top:6px">All exchanges live · 0 errors</div>
+        </div>
+        <div class="card-sm">
+          <div class="card-title">JEs Posted (Mar)</div>
+          <div style="font-size:22px;font-weight:800;color:var(--purple)">312</div>
+          <div class="progress"><div class="progress-fill" style="width:93%;background:var(--purple)"></div></div>
+          <div class="kpi-sub" style="margin-top:6px">93% auto-generated · 0 errors</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ TRADE CONNECT ══ -->
+    <div id="page-trade" class="page">
+      <div class="sec-hdr">
+        <div><h2>Trade Connect</h2><p>Direct API connections to trade engines · real-time subledger feed · zero file uploads</p></div>
+        <button class="btn btn-primary btn-sm" onclick="refreshFeed()">↻ Refresh Feed</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px" id="connector-grid"></div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title" style="display:flex;align-items:center;gap:8px">
+            Live Trade Feed <div class="live-dot"></div>
+            <span style="margin-left:auto;font-size:10px;color:var(--t3)">Auto-posting to subledger</span>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Exchange</th><th>Asset</th><th>Side</th><th>Qty</th><th>Price</th><th>Total</th><th>Status</th></tr></thead>
+              <tbody id="trade-feed"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Feed Statistics · Today</div>
+          <div class="grid-2" style="gap:12px">
+            <div class="card-sm"><div class="card-title">Trades Ingested</div><div style="font-size:24px;font-weight:800;color:var(--cyan)">847</div></div>
+            <div class="card-sm"><div class="card-title">Auto-Classified</div><div style="font-size:24px;font-weight:800;color:var(--green)">847</div></div>
+            <div class="card-sm"><div class="card-title">JEs Generated</div><div style="font-size:24px;font-weight:800;color:var(--purple)">1,694</div></div>
+            <div class="card-sm"><div class="card-title">Manual Review</div><div style="font-size:24px;font-weight:800;color:var(--gold2)">0</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="card-title">Supported Transaction Types</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="tx-types"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">API Connection Schema · Coinbase Prime (sample)</div>
+        <div class="je-preview">
+<span class="cm">// AUROS Trade Engine API — Real-time WebSocket Feed</span>
+{
+  <span class="kw">"event"</span>: <span class="str">"TRADE_SETTLED"</span>,
+  <span class="kw">"trade_id"</span>: <span class="str">"TRD-10042"</span>,
+  <span class="kw">"exchange"</span>: <span class="str">"COINBASE_PRIME"</span>,
+  <span class="kw">"asset"</span>: <span class="str">"BTC-USD"</span>,
+  <span class="kw">"side"</span>: <span class="str">"BUY"</span>,
+  <span class="kw">"quantity"</span>: <span class="num">12.5000000</span>,
+  <span class="kw">"price_usd"</span>: <span class="num">67420.00</span>,
+  <span class="kw">"total_usd"</span>: <span class="num">842750.00</span>,
+  <span class="kw">"fee_usd"</span>: <span class="num">420.38</span>,
+  <span class="kw">"settled_at"</span>: <span class="str">"2024-03-15T09:23:18Z"</span>,
+  <span class="kw">"custody_account"</span>: <span class="str">"PRIME-001-BTC"</span>,
+  <span class="kw">"auros_action"</span>: {
+    <span class="kw">"subledger_entry"</span>: <span class="str">"SL-20441"</span>,
+    <span class="kw">"je_generated"</span>: [<span class="str">"JE-8841"</span>, <span class="str">"JE-8842"</span>],
+    <span class="kw">"cost_basis_method"</span>: <span class="str">"HIFO"</span>,
+    <span class="kw">"tax_lot_id"</span>: <span class="str">"LOT-BTC-2024-0315-001"</span>,
+    <span class="kw">"gl_accounts"</span>: {
+      <span class="kw">"debit"</span>: <span class="str">"17000-100 (Digital Asset - Bitcoin)"</span>,
+      <span class="kw">"credit"</span>: <span class="str">"10100-000 (Cash - Prime Custody)"</span>
+    },
+    <span class="kw">"erp_status"</span>: <span class="str">"QUEUED_FOR_PUSH"</span>
+  }
+}
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ SUBLEDGER ══ -->
+    <div id="page-subledger" class="page">
+      <div class="sec-hdr">
+        <div><h2>Digital Asset Subledger</h2><p>Transaction-level accounting · auto-classification · real-time cost basis tracking</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm">⬇ Export CSV</button>
+          <button class="btn btn-primary btn-sm">Push to ERP</button>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card-sm"><div class="card-title">Total Entries (Mar)</div><div class="kpi-val" style="color:var(--cyan)">1,284</div><div class="kpi-sub">↑ 312 vs Feb</div></div>
+        <div class="card-sm"><div class="card-title">Auto-Classified</div><div class="kpi-val up">98.7%</div><div class="kpi-sub">16 manual review</div></div>
+        <div class="card-sm"><div class="card-title">Total Cost Basis</div><div class="kpi-val" style="color:var(--gold2)">$158.2M</div><div class="kpi-sub">Across all lots</div></div>
+        <div class="card-sm"><div class="card-title">Unposted Entries</div><div class="kpi-val" style="color:var(--purple)">23</div><div class="kpi-sub">Awaiting ERP push</div></div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="slTab('all',this)">All Transactions</div>
+        <div class="tab" onclick="slTab('buy',this)">Purchases</div>
+        <div class="tab" onclick="slTab('sell',this)">Sales / Disposals</div>
+        <div class="tab" onclick="slTab('transfer',this)">Transfers</div>
+        <div class="tab" onclick="slTab('fee',this)">Fees</div>
+        <div class="tab" onclick="slTab('staking',this)">Income / Staking</div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Entry ID</th><th>Date/Time</th><th>Asset</th><th>Type</th>
+            <th>Quantity</th><th>Cost Basis/Unit</th><th>Total Cost</th>
+            <th>Market Value</th><th>Unr. P&L</th><th>GL Account</th><th>Status</th>
+          </tr></thead>
+          <tbody id="subledger-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ GAIN/LOSS ══ -->
+    <div id="page-gainloss" class="page">
+      <div class="sec-hdr">
+        <div><h2>Gain / Loss Engine</h2><p>Tax lot tracking · FIFO · LIFO · HIFO · Specific Identification · Short vs. Long-term</p></div>
+        <div style="display:flex;gap:8px">
+          <select id="gl-method" onchange="renderGainLoss()" style="background:var(--navy3);color:var(--t1);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:7px;font-size:12px">
+            <option value="HIFO">HIFO (Default)</option>
+            <option value="FIFO">FIFO</option>
+            <option value="LIFO">LIFO</option>
+            <option value="SPEC">Specific ID</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="runGainLoss()">▶ Run Calculation</button>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">Short-Term Realized (≤1 yr)</div>
+          <div class="kpi-val up" id="gl-st">$8.24M</div>
+          <div class="kpi-sub">Ordinary income rate applies</div>
+          <div class="progress" style="margin-top:10px"><div class="progress-fill" style="width:67%;background:var(--amber)"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Long-Term Realized (>1 yr)</div>
+          <div class="kpi-val up" id="gl-lt">$4.10M</div>
+          <div class="kpi-sub">Preferred rate applies</div>
+          <div class="progress" style="margin-top:10px"><div class="progress-fill" style="width:33%;background:var(--green)"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Unrealized (Open Lots)</div>
+          <div class="kpi-val up" id="gl-ur">$89.2M</div>
+          <div class="kpi-sub" id="gl-method-sub">Method: HIFO · Optimizing tax</div>
+          <div class="progress" style="margin-top:10px"><div class="progress-fill" style="width:100%;background:var(--blue)"></div></div>
+        </div>
+      </div>
+
+      <!-- Per-asset breakdown -->
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">Realized P&L by Asset</div>
+          <div id="gl-asset-breakdown"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tax Lot Inventory (Open Positions)</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Lot ID</th><th>Asset</th><th>Acquired</th><th>Qty</th><th>Cost/Unit</th><th>Mkt/Unit</th><th>Unr. G/L</th><th>Holding</th></tr></thead>
+              <tbody id="taxlot-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Disposed Lots — Realized Transactions (YTD)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Lot ID</th><th>Asset</th><th>Acquired</th><th>Disposed</th><th>Qty</th><th>Cost Basis</th><th>Proceeds</th><th>Gain/Loss</th><th>ST/LT</th><th>JE</th></tr></thead>
+            <tbody id="disposed-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ JOURNAL ENTRIES ══ -->
+    <div id="page-je" class="page">
+      <div class="sec-hdr">
+        <div><h2>Journal Entry Generator</h2><p>Auto-generated ERP-ready JEs · NetSuite · SAP S/4HANA · Oracle Fusion · Workday</p></div>
+        <div style="display:flex;gap:8px">
+          <select id="erp-format" onchange="renderJEPreview()" style="background:var(--navy3);color:var(--t1);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:7px;font-size:12px">
+            <option value="netsuite">NetSuite XML</option>
+            <option value="sap">SAP IDoc</option>
+            <option value="oracle">Oracle Fusion</option>
+            <option value="workday">Workday CSV</option>
+          </select>
+          <button class="btn btn-blue btn-sm" onclick="pushAllJEs()">▶ Push All to ERP</button>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card-sm"><div class="card-title">Auto-Generated</div><div class="kpi-val" style="color:var(--cyan)">312</div><div class="kpi-sub">This month</div></div>
+        <div class="card-sm"><div class="card-title">Pending Push</div><div class="kpi-val" style="color:var(--purple)">23</div><div class="kpi-sub">Ready to export</div></div>
+        <div class="card-sm"><div class="card-title">Posted to ERP</div><div class="kpi-val up">289</div><div class="kpi-sub">Zero errors</div></div>
+        <div class="card-sm"><div class="card-title">Error Rate</div><div class="kpi-val" style="color:var(--green)">0.0%</div><div class="kpi-sub">Industry avg: 4.2%</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Journal Entry Queue</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>JE ID</th><th>Date</th><th>Description</th><th>Debits</th><th>Credits</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="je-table"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">ERP Export Preview — <span id="erp-label">NetSuite XML</span></div>
+          <div id="je-preview-box" class="je-preview"></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-primary btn-sm" onclick="pushAllJEs()">⬆ Push to ERP</button>
+            <button class="btn btn-ghost btn-sm">⬇ Download File</button>
+            <button class="btn btn-ghost btn-sm" onclick="renderJEPreview()">↻ Refresh</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ TREASURY ══ -->
+    <div id="page-treasury" class="page">
+      <div class="sec-hdr">
+        <div><h2>Treasury Management</h2><p>Counterparty exposure · settlement queue · custody allocation · cash forecasting</p></div>
+        <button class="btn btn-primary btn-sm">+ New Treasury Instruction</button>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card-sm"><div class="card-title">Total Custody AUM</div><div class="kpi-val" style="color:var(--gold2)">$247.4M</div><div class="kpi-sub">4 custodians</div></div>
+        <div class="card-sm"><div class="card-title">Pending Settlements</div><div class="kpi-val" style="color:var(--amber)">7</div><div class="kpi-sub">T+1 · T+2 queue</div></div>
+        <div class="card-sm"><div class="card-title">Fiat Cash Reserves</div><div class="kpi-val up">$42.1M</div><div class="kpi-sub">USD · EUR · GBP</div></div>
+        <div class="card-sm"><div class="card-title">Concentration Risk</div><div class="kpi-val" style="color:var(--amber)">72%</div><div class="kpi-sub">Coinbase Prime · Flagged</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">Counterparty Exposure</div>
+          <div id="counterparty-table"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Settlement Queue</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Settle ID</th><th>Asset</th><th>Direction</th><th>Amount</th><th>Counterparty</th><th>T+</th><th>Status</th></tr></thead>
+              <tbody id="settlement-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Treasury Transactions — Full Log</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tx ID</th><th>Date</th><th>Type</th><th>Asset</th><th>Qty</th><th>Value USD</th><th>From</th><th>To</th><th>JE</th><th>Status</th></tr></thead>
+            <tbody id="treasury-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ RECONCILIATION ══ -->
+    <div id="page-recon" class="page">
+      <div class="sec-hdr">
+        <div><h2>Three-Way Reconciliation</h2><p>Book balance vs. Exchange balance vs. Blockchain — zero manual spreadsheets</p></div>
+        <button class="btn btn-primary btn-sm" onclick="runRecon()">▶ Run Reconciliation</button>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card-sm"><div class="card-title">Match Rate</div><div class="kpi-val up">96.1%</div><div class="progress" style="margin-top:8px"><div class="progress-fill" style="width:96%;background:var(--green)"></div></div></div>
+        <div class="card-sm"><div class="card-title">Open Breaks</div><div class="kpi-val" style="color:var(--red)">4</div><div class="kpi-sub">Auto-assigned to ops</div></div>
+        <div class="card-sm"><div class="card-title">Last Run</div><div class="kpi-val" style="font-size:18px;color:var(--t1)">09:30 EST</div><div class="kpi-sub">Auto-runs every 15 min</div></div>
+        <div class="card-sm"><div class="card-title">Assets Reconciled</div><div class="kpi-val up">5 / 5</div><div class="kpi-sub">Across all custodians</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Three-Way Recon Status — All Assets</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Asset</th><th>Book Balance</th><th>Exchange Balance</th><th>Blockchain Balance</th>
+              <th>Book vs Exchange</th><th>Book vs Chain</th><th>Exchange vs Chain</th><th>Status</th><th>Break $</th>
+            </tr></thead>
+            <tbody id="recon-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Open Breaks — Investigation Queue</div>
+          <div id="break-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recon History — Last 7 Days</div>
+          <div id="recon-history"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ SECURITY ══ -->
+    <div id="page-security" class="page">
+      <div class="sec-hdr">
+        <div><h2>Security & Guardrails</h2><p>SOD controls · approval workflows · audit trail · data residency · compliance engine</p></div>
+        <span class="badge badge-green" style="font-size:12px;padding:6px 14px">● All Controls Passing</span>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card-sm"><div class="card-title">SOD Controls</div><div class="kpi-val up">14/14</div><div class="kpi-sub">All passing</div></div>
+        <div class="card-sm"><div class="card-title">Approval Workflows</div><div class="kpi-val" style="color:var(--cyan)">6 Active</div><div class="kpi-sub">4-eyes enforced</div></div>
+        <div class="card-sm"><div class="card-title">Audit Log Entries</div><div class="kpi-val" style="color:var(--purple)">18,441</div><div class="kpi-sub">Immutable · SHA-256</div></div>
+        <div class="card-sm"><div class="card-title">Data Residency</div><div class="kpi-val up">✓ US-only</div><div class="kpi-sub">No PII to LLM providers</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">Security Guardrails</div>
+          <div id="guardrail-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">SOD Controls Matrix</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Control</th><th>Role A</th><th>Role B</th><th>Conflict</th><th>Status</th></tr></thead>
+              <tbody id="sod-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Immutable Audit Trail (Recent)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th><th>SHA-256</th></tr></thead>
+            <tbody id="audit-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</body>
+<script>
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+const pageTitles = {
+  dashboard:  ['Portfolio Dashboard',     '· Mar 15, 2024 · 09:41 EST'],
+  trade:      ['Trade Connect',           '· 5 live connections · WebSocket'],
+  subledger:  ['Digital Asset Subledger', '· 1,284 entries · Mar 2024'],
+  gainloss:   ['Gain / Loss Engine',      '· HIFO method · Tax-optimized'],
+  je:         ['Journal Entry Generator', '· 23 pending · ERP-ready'],
+  treasury:   ['Treasury Management',     '· $247.4M AUM · 4 custodians'],
+  recon:      ['Three-Way Reconciliation','· 96.1% match · 4 open breaks'],
+  security:   ['Security & Guardrails',   '· SOC 2 Type II · All controls pass']
+};
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if(el) el.classList.add('active');
+  const [t, s] = pageTitles[id] || ['', ''];
+  document.getElementById('topbar-title').textContent = t;
+  document.getElementById('topbar-sub').textContent = s;
+  // lazy render
+  if(id==='dashboard')  renderDashboard();
+  if(id==='trade')      renderTrade();
+  if(id==='subledger')  renderSubledger('all');
+  if(id==='gainloss')   renderGainLoss();
+  if(id==='je')         { renderJETable(); renderJEPreview(); }
+  if(id==='treasury')   renderTreasury();
+  if(id==='recon')      renderRecon();
+  if(id==='security')   renderSecurity();
+}
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+const assets = [
+  {sym:'BTC', name:'Bitcoin',   qty:1240.5,   price:67420, cost:52000, color:'#F7931A'},
+  {sym:'ETH', name:'Ethereum',  qty:28400,    price:3840,  cost:2100,  color:'#627EEA'},
+  {sym:'SOL', name:'Solana',    qty:185000,   price:185,   cost:95,    color:'#9945FF'},
+  {sym:'USDC',name:'USD Coin',  qty:18200000, price:1.00,  cost:1.00,  color:'#2775CA'},
+  {sym:'USDT',name:'Tether',    qty:2291730,  price:1.00,  cost:1.00,  color:'#26A17B'},
+];
+
+const tradeData = [
+  {id:'TRD-10042',time:'09:23:18',ex:'Coinbase Prime',asset:'BTC',side:'BUY', qty:12.5,   price:67420, total:842750,  status:'SETTLED'},
+  {id:'TRD-10041',time:'09:18:44',ex:'Fireblocks',    asset:'ETH',side:'SELL',qty:450,    price:3842,  total:1728900, status:'SETTLED'},
+  {id:'TRD-10040',time:'09:15:02',ex:'Coinbase Prime',asset:'SOL',side:'BUY', qty:12000,  price:184.5, total:2214000, status:'SETTLED'},
+  {id:'TRD-10039',time:'09:08:17',ex:'BitGo',         asset:'BTC',side:'BUY', qty:5.0,    price:67380, total:336900,  status:'SETTLED'},
+  {id:'TRD-10038',time:'08:55:31',ex:'Anchorage',     asset:'USDC',side:'BUY',qty:5000000,price:1.00,  total:5000000, status:'SETTLED'},
+  {id:'TRD-10037',time:'08:44:19',ex:'Fireblocks',    asset:'ETH',side:'BUY', qty:200,    price:3835,  total:767000,  status:'PENDING'},
+  {id:'TRD-10036',time:'08:31:02',ex:'Coinbase Prime',asset:'BTC',side:'SELL',qty:8.25,   price:67500, total:556875,  status:'SETTLED'},
+  {id:'TRD-10035',time:'08:22:44',ex:'BitGo',         asset:'SOL',side:'SELL',qty:5000,   price:186,   total:930000,  status:'SETTLED'},
+  {id:'TRD-10034',time:'08:10:18',ex:'Anchorage',     asset:'ETH',side:'BUY', qty:100,    price:3820,  total:382000,  status:'SETTLED'},
+  {id:'TRD-10033',time:'07:58:02',ex:'Coinbase Prime',asset:'BTC',side:'BUY', qty:15.0,   price:67200, total:1008000, status:'SETTLED'},
+];
+
+const slData = [
+  {id:'SL-20441',dt:'2024-03-15 09:23',asset:'BTC', type:'Purchase',   qty:12.5,    cb:67420, total:842750,  mv:842750,  gl:0,         acct:'17000-100',status:'Unposted'},
+  {id:'SL-20440',dt:'2024-03-15 09:18',asset:'ETH', type:'Sale',       qty:450,     cb:2100,  total:945000,  mv:1728900, gl:783900,    acct:'17000-200',status:'Unposted'},
+  {id:'SL-20439',dt:'2024-03-15 09:15',asset:'SOL', type:'Purchase',   qty:12000,   cb:184.5, total:2214000, mv:2214000, gl:0,         acct:'17000-300',status:'Unposted'},
+  {id:'SL-20438',dt:'2024-03-15 09:08',asset:'BTC', type:'Purchase',   qty:5.0,     cb:67380, total:336900,  mv:337100,  gl:1000,      acct:'17000-100',status:'Posted'},
+  {id:'SL-20437',dt:'2024-03-15 08:55',asset:'USDC',type:'Purchase',   qty:5000000, cb:1.00,  total:5000000, mv:5000000, gl:0,         acct:'17000-400',status:'Posted'},
+  {id:'SL-20436',dt:'2024-03-15 08:44',asset:'ETH', type:'Purchase',   qty:200,     cb:3835,  total:767000,  mv:768000,  gl:1000,      acct:'17000-200',status:'Unposted'},
+  {id:'SL-20435',dt:'2024-03-15 08:31',asset:'BTC', type:'Sale',       qty:8.25,    cb:52000, total:429000,  mv:556875,  gl:127875,    acct:'17000-100',status:'Posted'},
+  {id:'SL-20434',dt:'2024-03-15 08:22',asset:'SOL', type:'Sale',       qty:5000,    cb:95,    total:475000,  mv:930000,  gl:455000,    acct:'17000-300',status:'Posted'},
+  {id:'SL-20433',dt:'2024-03-14 16:45',asset:'ETH', type:'Staking',    qty:2.4,     cb:0,     total:0,       mv:9216,    gl:9216,      acct:'17000-200',status:'Posted'},
+  {id:'SL-20432',dt:'2024-03-14 15:30',asset:'BTC', type:'Fee',        qty:0.001,   cb:67200, total:67.2,    mv:67.2,    gl:0,         acct:'65000-100',status:'Posted'},
+  {id:'SL-20431',dt:'2024-03-14 14:22',asset:'ETH', type:'Transfer In',qty:500,     cb:2100,  total:1050000, mv:1920000, gl:870000,    acct:'17000-200',status:'Posted'},
+  {id:'SL-20430',dt:'2024-03-14 11:15',asset:'SOL', type:'Purchase',   qty:50000,   cb:183,   total:9150000, mv:9250000, gl:100000,    acct:'17000-300',status:'Posted'},
+];
+
+const taxLots = [
+  {id:'LOT-BTC-0315-001',asset:'BTC',acq:'2024-03-15',qty:12.5,  cost:67420,mkt:67420,holding:'<1 day'},
+  {id:'LOT-BTC-0308-001',asset:'BTC',acq:'2024-03-08',qty:5.0,   cost:64200,mkt:67420,holding:'7 days'},
+  {id:'LOT-BTC-0215-001',asset:'BTC',acq:'2024-02-15',qty:80.0,  cost:51800,mkt:67420,holding:'29 days'},
+  {id:'LOT-BTC-0115-001',asset:'BTC',acq:'2024-01-15',qty:250.0, cost:43200,mkt:67420,holding:'60 days'},
+  {id:'LOT-BTC-2023-001',asset:'BTC',acq:'2023-06-10',qty:893.0, cost:28400,mkt:67420,holding:'279 days'},
+  {id:'LOT-ETH-0315-001',asset:'ETH',acq:'2024-03-15',qty:200,   cost:3835, mkt:3840, holding:'<1 day'},
+  {id:'LOT-ETH-0222-001',asset:'ETH',acq:'2024-02-22',qty:500,   cost:2940, mkt:3840, holding:'22 days'},
+  {id:'LOT-ETH-2023-001',asset:'ETH',acq:'2023-09-01',qty:27700, cost:1650, mkt:3840, holding:'196 days'},
+  {id:'LOT-SOL-0315-001',asset:'SOL',acq:'2024-03-15',qty:12000, cost:184.5,mkt:185,  holding:'<1 day'},
+  {id:'LOT-SOL-2023-001',asset:'SOL',acq:'2023-11-01',qty:173000,cost:45,   mkt:185,  holding:'135 days'},
+];
+
+const disposedLots = [
+  {id:'LOT-ETH-0218-001',asset:'ETH',acq:'2024-02-18',disp:'2024-03-15',qty:450, cost:945000, proc:1728900, gl:783900, stlt:'ST',je:'JE-8840'},
+  {id:'LOT-BTC-2022-001',asset:'BTC',acq:'2022-11-12',disp:'2024-03-15',qty:8.25,cost:429000, proc:556875,  gl:127875, stlt:'LT',je:'JE-8835'},
+  {id:'LOT-SOL-2023-002',asset:'SOL',acq:'2023-09-15',disp:'2024-03-15',qty:5000,cost:475000, proc:930000,  gl:455000, stlt:'ST',je:'JE-8834'},
+  {id:'LOT-ETH-2022-001',asset:'ETH',acq:'2022-06-01',disp:'2024-03-10',qty:200, cost:264000, proc:768000,  gl:504000, stlt:'LT',je:'JE-8810'},
+  {id:'LOT-BTC-2021-001',asset:'BTC',acq:'2021-03-15',disp:'2024-03-05',qty:15,  cost:652500, proc:1009500, gl:357000, stlt:'LT',je:'JE-8780'},
+];
+
+const jeQueue = [
+  {id:'JE-8841',dt:'2024-03-15',desc:'BTC Purchase — Coinbase Prime',dr:842750,cr:842750,status:'Pending',
+   lines:[{acct:'17000-100',desc:'Digital Asset — Bitcoin',dr:842750,cr:0},{acct:'10100-000',desc:'Cash — Prime Custody',dr:0,cr:842750}]},
+  {id:'JE-8840',dt:'2024-03-15',desc:'ETH Sale — Gain Realization',dr:1728900,cr:1728900,status:'Pending',
+   lines:[{acct:'10100-000',desc:'Cash — Prime Custody',dr:1728900,cr:0},{acct:'17000-200',desc:'Digital Asset — Ethereum',dr:0,cr:945000},{acct:'40100-200',desc:'Realized Gain — Crypto',dr:0,cr:783900}]},
+  {id:'JE-8839',dt:'2024-03-15',desc:'SOL Purchase — Coinbase Prime',dr:2214000,cr:2214000,status:'Pending',
+   lines:[{acct:'17000-300',desc:'Digital Asset — Solana',dr:2214000,cr:0},{acct:'10100-000',desc:'Cash — Prime Custody',dr:0,cr:2214000}]},
+  {id:'JE-8838',dt:'2024-03-15',desc:'BTC Purchase — BitGo Custody',dr:336900,cr:336900,status:'Pending',
+   lines:[{acct:'17000-100',desc:'Digital Asset — Bitcoin',dr:336900,cr:0},{acct:'10100-001',desc:'Cash — BitGo Custody',dr:0,cr:336900}]},
+  {id:'JE-8837',dt:'2024-03-15',desc:'USDC Purchase — Anchorage',dr:5000000,cr:5000000,status:'Pending',
+   lines:[{acct:'17000-400',desc:'Digital Asset — USD Coin',dr:5000000,cr:0},{acct:'10100-002',desc:'Cash — Anchorage',dr:0,cr:5000000}]},
+  {id:'JE-8836',dt:'2024-03-14',desc:'ETH Staking Income',dr:9216,cr:9216,status:'Posted',
+   lines:[{acct:'17000-200',desc:'Digital Asset — Ethereum',dr:9216,cr:0},{acct:'70100-000',desc:'Staking Income',dr:0,cr:9216}]},
+  {id:'JE-8835',dt:'2024-03-14',desc:'BTC Sale — Long-term Gain',dr:556875,cr:556875,status:'Posted',
+   lines:[{acct:'10100-000',desc:'Cash — Prime Custody',dr:556875,cr:0},{acct:'17000-100',desc:'Digital Asset — Bitcoin',dr:0,cr:429000},{acct:'40200-100',desc:'LT Realized Gain — Crypto',dr:0,cr:127875}]},
+];
+
+const treasuryData = {
+  counterparties: [
+    {name:'Coinbase Prime',type:'Custody + OTC', assets:['BTC','ETH','USDC'],value:178400000,limit:250000000,util:71.4,rating:'A+'},
+    {name:'Fireblocks',    type:'MPC Custody',   assets:['ETH','SOL'],        value:44200000, limit:100000000,util:44.2,rating:'A'},
+    {name:'BitGo',         type:'Qualified Custody', assets:['BTC','USDC'],   value:18800000, limit:75000000, util:25.1,rating:'A'},
+    {name:'Anchorage Digital',type:'Bank Custody',assets:['USDC','USDT'],     value:5982000,  limit:50000000, util:12.0,rating:'AA-'},
+  ],
+  settlements: [
+    {id:'STL-441',asset:'BTC', dir:'Receive',amt:12.5,  usd:842750,  cp:'Coinbase Prime',   t:'T+0',status:'Settling'},
+    {id:'STL-440',asset:'ETH', dir:'Deliver', amt:450,   usd:1728900, cp:'Coinbase Prime',   t:'T+0',status:'Complete'},
+    {id:'STL-439',asset:'SOL', dir:'Receive',amt:12000,  usd:2214000, cp:'Coinbase Prime',   t:'T+1',status:'Pending'},
+    {id:'STL-438',asset:'BTC', dir:'Receive',amt:5.0,   usd:336900,  cp:'BitGo',            t:'T+0',status:'Complete'},
+    {id:'STL-437',asset:'USDC',dir:'Receive',amt:5000000,usd:5000000, cp:'Anchorage Digital',t:'T+1',status:'Pending'},
+    {id:'STL-436',asset:'ETH', dir:'Receive',amt:200,   usd:767000,  cp:'Fireblocks',        t:'T+2',status:'Pending'},
+    {id:'STL-435',asset:'ETH', dir:'Deliver', amt:100,   usd:384000,  cp:'Fireblocks',        t:'T+0',status:'Complete'},
+  ],
+  txLog: [
+    {id:'TX-9041',dt:'2024-03-15',type:'Trade Settle',  asset:'BTC', qty:12.5,   usd:842750,  from:'Fiat Account',     to:'Coinbase Prime',je:'JE-8841',status:'Complete'},
+    {id:'TX-9040',dt:'2024-03-15',type:'Trade Settle',  asset:'ETH', qty:450,    usd:1728900, from:'Coinbase Prime',   to:'Fiat Account',  je:'JE-8840',status:'Complete'},
+    {id:'TX-9039',dt:'2024-03-15',type:'Internal Move', asset:'USDC',qty:2000000,usd:2000000, from:'Coinbase Prime',   to:'Anchorage',     je:'JE-8838',status:'Complete'},
+    {id:'TX-9038',dt:'2024-03-14',type:'Staking Reward',asset:'ETH', qty:2.4,    usd:9216,    from:'Protocol',         to:'Coinbase Prime',je:'JE-8836',status:'Complete'},
+    {id:'TX-9037',dt:'2024-03-14',type:'OTC Purchase',  asset:'BTC', qty:15.0,   usd:1008000, from:'Fiat Account',     to:'Coinbase Prime',je:'JE-8835',status:'Complete'},
+    {id:'TX-9036',dt:'2024-03-13',type:'Custody Transfer',asset:'BTC',qty:50.0,  usd:3371000, from:'Coinbase Prime',   to:'BitGo',         je:'JE-8820',status:'Complete'},
+  ]
+};
+
+const reconData = [
+  {asset:'BTC', book:1240.5, ex:1240.5,  chain:1240.5,  bookEx:'✓', bookCh:'✓', exCh:'✓', status:'Matched',  breakUsd:0},
+  {asset:'ETH', book:28400,  ex:28398.5, chain:28400,   bookEx:'✗', bookCh:'✓', exCh:'✗', status:'Break',    breakUsd:5760},
+  {asset:'SOL', book:185000, ex:185000,  chain:185000,  bookEx:'✓', bookCh:'✓', exCh:'✓', status:'Matched',  breakUsd:0},
+  {asset:'USDC',book:18200000,ex:18200000,chain:18199800,bookEx:'✓', bookCh:'✗', exCh:'✗', status:'Break',    breakUsd:200},
+  {asset:'USDT',book:2291730,ex:2291730, chain:2291730, bookEx:'✓', bookCh:'✓', exCh:'✓', status:'Matched',  breakUsd:0},
+];
+
+const breaks = [
+  {id:'BRK-001',asset:'ETH', diff:1.5,   usd:5760,  desc:'Exchange balance 1.5 ETH short. Likely pending settlement STL-440.',owner:'Ops - A. Thomas',age:'0 hrs'},
+  {id:'BRK-002',asset:'USDC',diff:200,   usd:200,   desc:'Blockchain scan shows 200 USDC unconfirmed transaction on-chain.',  owner:'Ops - J. Park',  age:'2 hrs'},
+  {id:'BRK-003',asset:'BTC', diff:0.001, usd:67,    desc:'Fee rebate credit not yet reflected in book balance.',              owner:'Finance - S. Lee',age:'4 hrs'},
+  {id:'BRK-004',asset:'ETH', diff:0.8,   usd:3072,  desc:'Staking reward timing difference — pending subledger entry.',       owner:'Finance - S. Lee',age:'6 hrs'},
+];
+
+const guardrails = [
+  {icon:'🔐',color:'rgba(16,185,129,.15)',title:'4-Eyes JE Approval',       desc:'All JEs >$100K require dual approval before ERP push. Zero-bypass enforcement.', status:'Active'},
+  {icon:'🚫',color:'rgba(239,68,68,.15)', title:'SOD: No Self-Approval',    desc:'Initiator cannot approve own JE. Detected 0 violations this month.', status:'Active'},
+  {icon:'🏛',color:'rgba(37,99,235,.15)', title:'Data Residency (US-Only)', desc:'All PII and transaction data processed in US-East. No data leaves US jurisdiction.', status:'Active'},
+  {icon:'🤖',color:'rgba(139,92,246,.15)',title:'AI Output Filtering',       desc:'All AI-generated JE narratives screened for hallucinations before posting.', status:'Active'},
+  {icon:'🔗',color:'rgba(6,182,212,.15)', title:'Immutable Audit Trail',    desc:'Every action hashed with SHA-256 and timestamped. Tamper-evident log.', status:'Active'},
+  {icon:'⚡',color:'rgba(245,158,11,.15)',title:'Transaction Limit Controls',desc:'Single trade >$10M triggers CFO alert. Daily limit $50M enforced at API layer.', status:'Active'},
+];
+
+const sodControls = [
+  {ctrl:'JE Initiate vs. Approve',   roleA:'Trade Ops',      roleB:'Finance Controller', conflict:'Yes', status:'Enforced'},
+  {ctrl:'Trade Execute vs. Settle',  roleA:'Trading Desk',   roleB:'Settlement Ops',     conflict:'Yes', status:'Enforced'},
+  {ctrl:'ERP Push vs. GL Review',    roleA:'Systems Admin',  roleB:'GL Accountant',      conflict:'Yes', status:'Enforced'},
+  {ctrl:'Custody Access vs. Recon',  roleA:'Custody Ops',    roleB:'Recon Analyst',      conflict:'Yes', status:'Enforced'},
+  {ctrl:'User Create vs. Approve',   roleA:'IT Admin',       roleB:'Security Officer',   conflict:'Yes', status:'Enforced'},
+  {ctrl:'Gain/Loss vs. JE Post',     roleA:'Tax Analyst',    roleB:'Controller',         conflict:'Yes', status:'Enforced'},
+];
+
+const auditLog = [
+  {ts:'2024-03-15 09:41:02',user:'gaurav.va',action:'JE Preview Generated',  resource:'JE-8841',       ip:'10.0.1.42', hash:'a3f8c2d1'},
+  {ts:'2024-03-15 09:39:18',user:'s.lee',    action:'Recon Run Triggered',    resource:'ALL-ASSETS',    ip:'10.0.1.88', hash:'b7e4a9f2'},
+  {ts:'2024-03-15 09:30:00',user:'system',   action:'Auto Recon Completed',   resource:'RECON-2024-315',ip:'internal',  hash:'c1d5b8e3'},
+  {ts:'2024-03-15 09:23:19',user:'system',   action:'Trade Ingested + SL Post',resource:'TRD-10042',   ip:'api',       hash:'d4f2c7a1'},
+  {ts:'2024-03-15 09:23:19',user:'system',   action:'JE Auto-Generated',      resource:'JE-8841',       ip:'api',       hash:'e9b3d6c2'},
+  {ts:'2024-03-15 09:18:45',user:'system',   action:'Trade Ingested + SL Post',resource:'TRD-10041',   ip:'api',       hash:'f2e1a8b4'},
+  {ts:'2024-03-15 09:10:00',user:'j.park',   action:'Break Acknowledged',     resource:'BRK-002',       ip:'10.0.1.55', hash:'a8c3f1e2'},
+  {ts:'2024-03-15 08:55:00',user:'a.thomas', action:'JE Approved',            resource:'JE-8836',       ip:'10.0.1.71', hash:'b1d4e7f3'},
+];
+
+// ── RENDER FUNCTIONS ────────────────────────────────────────────────────────
+function fmt$(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:n<1000?2:0,maximumFractionDigits:n<1000?4:0})}
+function fmtN(n,d=2){return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtQty(n,sym){
+  if(sym==='USDC'||sym==='USDT') return n.toLocaleString('en-US',{maximumFractionDigits:0});
+  return n.toLocaleString('en-US',{maximumFractionDigits:4});
+}
+const assetColors={BTC:'#F7931A',ETH:'#627EEA',SOL:'#9945FF',USDC:'#2775CA',USDT:'#26A17B'};
+
+function renderDashboard(){
+  // Asset table
+  const at = document.getElementById('asset-table');
+  if(!at) return;
+  const total = assets.reduce((a,x)=>a+x.qty*x.price,0);
+  at.innerHTML = assets.map(a=>{
+    const val=a.qty*a.price, cb=a.qty*a.cost, gl=val-cb, pct=(val/total*100);
+    const glCls=gl>0?'up':'down';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${assetColors[a.sym]}"></div>
+        <strong>${a.sym}</strong><span style="color:var(--t3);font-size:11px">${a.name}</span>
+      </div></td>
+      <td class="mono">${fmtQty(a.qty,a.sym)}</td>
+      <td class="mono">${fmt$(a.price)}</td>
+      <td class="mono"><strong>${fmt$(val)}</strong></td>
+      <td class="mono ${glCls}">${gl===0?'—':fmt$(gl)}</td>
+      <td><div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px">${pct.toFixed(1)}%</span>
+        <div style="flex:1;background:rgba(255,255,255,.08);height:4px;border-radius:2px;width:50px">
+          <div style="width:${pct}%;height:100%;background:${assetColors[a.sym]};border-radius:2px"></div>
+        </div>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  // Activity table
+  const act = document.getElementById('activity-table');
+  if(act) act.innerHTML = tradeData.slice(0,8).map(t=>{
+    const sc=t.side==='BUY'?'badge-green':'badge-red';
+    const ss=t.status==='SETTLED'?'badge-green':'badge-amber';
+    return `<tr>
+      <td class="mono" style="color:var(--t3)">${t.time}</td>
+      <td><div style="display:flex;align-items:center;gap:5px">
+        <div style="width:6px;height:6px;border-radius:50%;background:${assetColors[t.asset]||'#888'}"></div>
+        ${t.asset}
+      </div></td>
+      <td><span class="badge ${sc}">${t.side}</span></td>
+      <td class="mono">${fmtQty(t.qty,t.asset)}</td>
+      <td class="mono">${fmt$(t.total)}</td>
+      <td><span class="badge ${ss}">${t.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTrade(){
+  const connectors = [
+    {name:'Coinbase Prime',icon:'🟡',status:'live', vol:'$142M/day',lag:'12ms'},
+    {name:'Fireblocks',    icon:'🔵',status:'live', vol:'$44M/day', lag:'8ms'},
+    {name:'BitGo',         icon:'🟢',status:'live', vol:'$18M/day', lag:'15ms'},
+    {name:'Anchorage',     icon:'⚫',status:'live', vol:'$6M/day',  lag:'22ms'},
+    {name:'Binance Inst.', icon:'🟠',status:'warn', vol:'$0 today', lag:'—'},
+  ];
+  const cg = document.getElementById('connector-grid');
+  if(cg) cg.innerHTML = connectors.map(c=>`
+    <div class="conn-card">
+      <div class="conn-icon" style="background:rgba(255,255,255,.07)">${c.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">${c.vol} · ${c.lag}</div>
+        <span class="badge ${c.status==='live'?'badge-green':c.status==='warn'?'badge-amber':'badge-red'}" style="margin-top:4px;display:inline-block">${c.status.toUpperCase()}</span>
+      </div>
+      <div class="conn-status ${c.status}"></div>
+    </div>`).join('');
+
+  const tf = document.getElementById('trade-feed');
+  if(tf) tf.innerHTML = tradeData.map(t=>{
+    const sc=t.side==='BUY'?'badge-green':'badge-red';
+    const ss=t.status==='SETTLED'?'badge-green':t.status==='PENDING'?'badge-amber':'badge-blue';
+    return `<tr>
+      <td class="mono" style="color:var(--t3)">${t.time}</td>
+      <td style="font-size:11px;color:var(--t2)">${t.ex}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:${assetColors[t.asset]||'#888'}"></div>${t.asset}</div></td>
+      <td><span class="badge ${sc}">${t.side}</span></td>
+      <td class="mono">${fmtQty(t.qty,t.asset)}</td>
+      <td class="mono">${fmt$(t.price)}</td>
+      <td class="mono"><strong>${fmt$(t.total)}</strong></td>
+      <td><span class="badge ${ss}">${t.status}</span></td>
+    </tr>`;
+  }).join('');
+
+  const txTypes=['Purchase','Sale','Transfer-In','Transfer-Out','Staking Reward','Fee','NFT Purchase','Loan Collateral','Margin Call','OTC Trade','Wrap/Unwrap','Bridge Transfer'];
+  const tt = document.getElementById('tx-types');
+  if(tt) tt.innerHTML = txTypes.map(t=>`<span class="badge badge-blue">${t}</span>`).join('');
+}
+
+let currentSlTab = 'all';
+function slTab(t,el){
+  currentSlTab=t;
+  document.querySelectorAll('.tabs .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderSubledger(t);
+}
+function renderSubledger(filter){
+  const filtered = filter==='all' ? slData :
+    filter==='buy' ? slData.filter(x=>x.type==='Purchase') :
+    filter==='sell' ? slData.filter(x=>x.type==='Sale') :
+    filter==='transfer' ? slData.filter(x=>x.type.includes('Transfer')) :
+    filter==='fee' ? slData.filter(x=>x.type==='Fee') :
+    slData.filter(x=>x.type==='Staking');
+  const tb = document.getElementById('subledger-table');
+  if(!tb) return;
+  tb.innerHTML = filtered.map(e=>{
+    const glCls = e.gl>0?'up':e.gl<0?'down':'';
+    const ss = e.status==='Posted'?'badge-green':'badge-amber';
+    const typeColor={Purchase:'badge-blue',Sale:'badge-red',Fee:'badge-purple','Transfer In':'badge-cyan','Staking':'badge-green'}[e.type]||'badge-blue';
+    return `<tr>
+      <td class="mono" style="color:var(--blue2)">${e.id}</td>
+      <td class="mono" style="color:var(--t3);font-size:11px">${e.dt}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:${assetColors[e.asset]||'#888'}"></div><strong>${e.asset}</strong></div></td>
+      <td><span class="badge ${typeColor}">${e.type}</span></td>
+      <td class="mono">${fmtQty(e.qty,e.asset)}</td>
+      <td class="mono">${fmt$(e.cb)}</td>
+      <td class="mono"><strong>${fmt$(e.total)}</strong></td>
+      <td class="mono">${fmt$(e.mv)}</td>
+      <td class="mono ${glCls}">${e.gl===0?'—':fmt$(e.gl)}</td>
+      <td class="mono" style="color:var(--t3);font-size:11px">${e.acct}</td>
+      <td><span class="badge ${ss}">${e.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderGainLoss(){
+  const method = (document.getElementById('gl-method')||{value:'HIFO'}).value;
+  const sub = document.getElementById('gl-method-sub');
+  if(sub) sub.textContent = `Method: ${method} · ${method==='HIFO'?'Optimizing tax (default)':method==='FIFO'?'First-In First-Out':'Last-In First-Out or Specific ID'}`;
+
+  const assetGL = [
+    {asset:'BTC',color:'#F7931A',st:127875,lt:357000,ur:23893500},
+    {asset:'ETH',color:'#627EEA',st:783900,lt:504000,ur:49476000},
+    {asset:'SOL',color:'#9945FF',st:455000,lt:0,     ur:16650000},
+    {asset:'USDC',color:'#2775CA',st:0,    lt:0,     ur:0},
+    {asset:'USDT',color:'#26A17B',st:0,    lt:0,     ur:0},
+  ];
+  const abd = document.getElementById('gl-asset-breakdown');
+  if(abd) abd.innerHTML = assetGL.map(a=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${a.color};flex-shrink:0"></div>
+      <span style="font-weight:700;width:44px">${a.asset}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3)">
+          <span>ST: <span style="color:${a.st>0?'var(--green)':'var(--t3)'}">${a.st>0?fmt$(a.st):'—'}</span></span>
+          <span>LT: <span style="color:${a.lt>0?'var(--green)':'var(--t3)'}">${a.lt>0?fmt$(a.lt):'—'}</span></span>
+          <span>Unr: <span style="color:${a.ur>0?'var(--cyan)':'var(--t3)'}">${a.ur>0?fmt$(a.ur):'—'}</span></span>
+        </div>
+        <div class="progress" style="margin-top:4px"><div class="progress-fill" style="width:${Math.min(100,(a.st+a.lt+a.ur)/1000000)}%;background:${a.color}"></div></div>
+      </div>
+    </div>`).join('');
+
+  const tlt = document.getElementById('taxlot-table');
+  if(tlt) tlt.innerHTML = taxLots.map(l=>{
+    const unr=(l.mkt-l.cost)*l.qty;
+    return `<tr>
+      <td class="mono" style="color:var(--t3);font-size:10px">${l.id}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:${assetColors[l.asset]}"></div>${l.asset}</div></td>
+      <td class="mono" style="color:var(--t3)">${l.acq}</td>
+      <td class="mono">${fmtQty(l.qty,l.asset)}</td>
+      <td class="mono">${fmt$(l.cost)}</td>
+      <td class="mono">${fmt$(l.mkt)}</td>
+      <td class="mono ${unr>0?'up':unr<0?'down':''}">${fmt$(unr)}</td>
+      <td><span class="badge ${l.holding.includes('day')&&!l.holding.includes('1')&&parseInt(l.holding)<365?'badge-amber':'badge-green'}">${l.holding}</span></td>
+    </tr>`;
+  }).join('');
+
+  const dt = document.getElementById('disposed-table');
+  if(dt) dt.innerHTML = disposedLots.map(l=>`<tr>
+    <td class="mono" style="color:var(--t3);font-size:10px">${l.id}</td>
+    <td><div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:${assetColors[l.asset]}"></div>${l.asset}</div></td>
+    <td class="mono" style="color:var(--t3)">${l.acq}</td>
+    <td class="mono" style="color:var(--t3)">${l.disp}</td>
+    <td class="mono">${fmtQty(l.qty,l.asset)}</td>
+    <td class="mono">${fmt$(l.cost)}</td>
+    <td class="mono">${fmt$(l.proc)}</td>
+    <td class="mono up"><strong>${fmt$(l.gl)}</strong></td>
+    <td><span class="badge ${l.stlt==='LT'?'badge-green':'badge-amber'}">${l.stlt}</span></td>
+    <td class="mono" style="color:var(--blue2)">${l.je}</td>
+  </tr>`).join('');
+}
+function runGainLoss(){
+  const btn = event.target;
+  btn.textContent='⏳ Calculating...';
+  btn.disabled=true;
+  setTimeout(()=>{btn.textContent='▶ Run Calculation';btn.disabled=false;renderGainLoss();},1200);
+}
+
+function renderJETable(){
+  const jt = document.getElementById('je-table');
+  if(!jt) return;
+  jt.innerHTML = jeQueue.map(j=>{
+    const ss=j.status==='Pending'?'badge-amber':'badge-green';
+    return `<tr>
+      <td class="mono" style="color:var(--blue2)">${j.id}</td>
+      <td class="mono" style="color:var(--t3)">${j.dt}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${j.desc}</td>
+      <td class="mono up">${fmt$(j.dr)}</td>
+      <td class="mono" style="color:var(--red)">(${fmt$(j.cr)})</td>
+      <td><span class="badge ${ss}">${j.status}</span></td>
+      <td><button class="btn btn-sm ${j.status==='Pending'?'btn-primary':'btn-ghost'}" onclick="pushJE('${j.id}',this)">${j.status==='Pending'?'Push':'✓ Done'}</button></td>
+    </tr>`;
+  }).join('');
+}
+function pushJE(id,btn){
+  btn.textContent='⏳';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='✓ Pushed';btn.className='btn btn-sm btn-ghost';btn.disabled=false;},1000);
+}
+function pushAllJEs(){
+  document.querySelectorAll('#je-table tr td button').forEach((b,i)=>{
+    setTimeout(()=>{b.textContent='⏳';b.disabled=true;
+    setTimeout(()=>{b.textContent='✓';b.disabled=false;},800);},i*150);
+  });
+}
+
+const erpFormats = {
+  netsuite:`<span class="cm">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="kw">&lt;JournalEntry</span> xmlns="urn:netsuite.com:soap" <span class="kw">&gt;</span>
+  <span class="kw">&lt;tranId&gt;</span><span class="str">JE-8841</span><span class="kw">&lt;/tranId&gt;</span>
+  <span class="kw">&lt;tranDate&gt;</span><span class="str">2024-03-15</span><span class="kw">&lt;/tranDate&gt;</span>
+  <span class="kw">&lt;memo&gt;</span><span class="str">BTC Purchase — Coinbase Prime [AUROS-AUTO]</span><span class="kw">&lt;/memo&gt;</span>
+  <span class="kw">&lt;lineList&gt;</span>
+    <span class="kw">&lt;line&gt;</span>
+      <span class="kw">&lt;account&gt;</span><span class="str">17000-100</span><span class="kw">&lt;/account&gt;</span>
+      <span class="kw">&lt;memo&gt;</span><span class="str">Digital Asset — Bitcoin [LOT-BTC-2024-0315-001]</span><span class="kw">&lt;/memo&gt;</span>
+      <span class="kw">&lt;debit&gt;</span><span class="num">842750.00</span><span class="kw">&lt;/debit&gt;</span>
+    <span class="kw">&lt;/line&gt;</span>
+    <span class="kw">&lt;line&gt;</span>
+      <span class="kw">&lt;account&gt;</span><span class="str">10100-000</span><span class="kw">&lt;/account&gt;</span>
+      <span class="kw">&lt;memo&gt;</span><span class="str">Cash — Prime Custody Account</span><span class="kw">&lt;/memo&gt;</span>
+      <span class="kw">&lt;credit&gt;</span><span class="num">842750.00</span><span class="kw">&lt;/credit&gt;</span>
+    <span class="kw">&lt;/line&gt;</span>
+  <span class="kw">&lt;/lineList&gt;</span>
+  <span class="kw">&lt;custbody_auros_trade&gt;</span><span class="str">TRD-10042</span><span class="kw">&lt;/custbody_auros_trade&gt;</span>
+  <span class="kw">&lt;custbody_auros_method&gt;</span><span class="str">HIFO</span><span class="kw">&lt;/custbody_auros_method&gt;</span>
+<span class="kw">&lt;/JournalEntry&gt;</span>`,
+  sap:`<span class="cm">* SAP IDoc FIDCC2 — Journal Entry — AUROS Generated</span>
+<span class="kw">BKPF</span>
+  BUKRS <span class="str">1000</span>          <span class="cm">Company Code</span>
+  BLART <span class="str">SA</span>            <span class="cm">Document Type: G/L Account</span>
+  BLDAT <span class="str">20240315</span>       <span class="cm">Document Date</span>
+  BUDAT <span class="str">20240315</span>       <span class="cm">Posting Date</span>
+  BKTXT <span class="str">BTC PURCH COINBASE JE-8841</span>
+  AUROS_REF <span class="str">TRD-10042 HIFO</span>
+<span class="kw">BSEG</span> <span class="cm">(Line 1 — Debit)</span>
+  BUZEI <span class="str">001</span>
+  HKONT <span class="str">0017000100</span>    <span class="cm">Digital Asset - Bitcoin</span>
+  SHKZG <span class="str">S</span>              <span class="cm">Debit indicator</span>
+  WRBTR <span class="num">842750.00</span>
+  WAERS <span class="str">USD</span>
+  SGTXT <span class="str">LOT-BTC-2024-0315-001 | QTY 12.5 BTC</span>
+<span class="kw">BSEG</span> <span class="cm">(Line 2 — Credit)</span>
+  BUZEI <span class="str">002</span>
+  HKONT <span class="str">0010100000</span>    <span class="cm">Cash - Prime Custody</span>
+  SHKZG <span class="str">H</span>              <span class="cm">Credit indicator</span>
+  WRBTR <span class="num">842750.00</span>
+  WAERS <span class="str">USD</span>`,
+  oracle:`<span class="cm">// Oracle Fusion — Journal Import (FBDI) — AUROS v2.4</span>
+{
+  <span class="kw">"journals"</span>: [{
+    <span class="kw">"journal_name"</span>: <span class="str">"JE-8841"</span>,
+    <span class="kw">"accounting_date"</span>: <span class="str">"2024-03-15"</span>,
+    <span class="kw">"ledger_name"</span>: <span class="str">"PRIMARY_LEDGER"</span>,
+    <span class="kw">"currency"</span>: <span class="str">"USD"</span>,
+    <span class="kw">"category"</span>: <span class="str">"DIGITAL_ASSET"</span>,
+    <span class="kw">"description"</span>: <span class="str">"BTC Purchase Coinbase Prime [AUROS-AUTO]"</span>,
+    <span class="kw">"reference"</span>: <span class="str">"TRD-10042|LOT-BTC-2024-0315-001|HIFO"</span>,
+    <span class="kw">"lines"</span>: [
+      { <span class="kw">"line_num"</span>: <span class="num">1</span>, <span class="kw">"account"</span>: <span class="str">"01.17000.100"</span>,
+        <span class="kw">"debit_amount"</span>: <span class="num">842750.00</span>, <span class="kw">"credit_amount"</span>: <span class="num">0</span>,
+        <span class="kw">"description"</span>: <span class="str">"Digital Asset Bitcoin 12.5 BTC"</span> },
+      { <span class="kw">"line_num"</span>: <span class="num">2</span>, <span class="kw">"account"</span>: <span class="str">"01.10100.000"</span>,
+        <span class="kw">"debit_amount"</span>: <span class="num">0</span>, <span class="kw">"credit_amount"</span>: <span class="num">842750.00</span>,
+        <span class="kw">"description"</span>: <span class="str">"Cash Prime Custody Account"</span> }
+    ]
+  }]
+}`,
+  workday:`<span class="cm"># Workday Journal Lines Import — CSV (AUROS Auto-Export)</span>
+<span class="cm"># Generated: 2024-03-15T09:41:00Z | Method: HIFO | Ref: TRD-10042</span>
+
+<span class="kw">Company,Journal_Source,Accounting_Date,Currency,Description,Line,Account,Debit,Credit,Memo</span>
+<span class="str">CORP001</span>,<span class="str">AUROS_DIGITAL</span>,<span class="str">2024-03-15</span>,<span class="str">USD</span>,<span class="str">BTC Purchase JE-8841</span>,<span class="num">1</span>,<span class="str">17000-100</span>,<span class="num">842750.00</span>,,<span class="str">Digital Asset BTC 12.5 LOT-BTC-2024-0315-001</span>
+<span class="str">CORP001</span>,<span class="str">AUROS_DIGITAL</span>,<span class="str">2024-03-15</span>,<span class="str">USD</span>,<span class="str">BTC Purchase JE-8841</span>,<span class="num">2</span>,<span class="str">10100-000</span>,,<span class="num">842750.00</span>,<span class="str">Cash Prime Custody TRD-10042</span>`
+};
+
+function renderJEPreview(){
+  const fmt = (document.getElementById('erp-format')||{value:'netsuite'}).value;
+  const labels={netsuite:'NetSuite XML',sap:'SAP IDoc',oracle:'Oracle Fusion JSON',workday:'Workday CSV'};
+  const lb = document.getElementById('erp-label');
+  if(lb) lb.textContent = labels[fmt];
+  const pb = document.getElementById('je-preview-box');
+  if(pb) pb.innerHTML = erpFormats[fmt];
+}
+
+function renderTreasury(){
+  const ct = document.getElementById('counterparty-table');
+  if(ct) ct.innerHTML = treasuryData.counterparties.map(c=>{
+    const fc = c.util>70?'var(--red)':c.util>50?'var(--gold2)':'var(--green)';
+    return `<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-weight:700;font-size:13px">${c.name}</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${c.type} · ${c.assets.join(' · ')}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700;color:var(--gold2)">${fmt$(c.value)}</div>
+          <div style="font-size:11px;color:var(--t3)">Limit: ${fmt$(c.limit)}</div>
+          <span class="badge ${c.rating.startsWith('A+')?'badge-green':c.rating.startsWith('AA')?'badge-cyan':'badge-blue'}">${c.rating}</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:8px">
+        <span style="color:${fc};font-weight:600">${c.util}% utilized</span>
+        <span style="color:var(--t3)">Remaining: ${fmt$(c.limit-c.value)}</span>
+      </div>
+      <div class="cp-bar"><div class="cp-fill" style="width:${c.util}%;background:${fc}"></div></div>
+    </div>`;
+  }).join('');
+
+  const st = document.getElementById('settlement-table');
+  if(st) st.innerHTML = treasuryData.settlements.map(s=>{
+    const ss=s.status==='Complete'?'badge-green':s.status==='Settling'?'badge-amber':'badge-blue';
+    const dc=s.dir==='Receive'?'badge-green':'badge-red';
+    return `<tr>
+      <td class="mono" style="color:var(--t3)">${s.id}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:${assetColors[s.asset]||'#888'}"></div>${s.asset}</div></td>
+      <td><span class="badge ${dc}">${s.dir}</span></td>
+      <td class="mono">${fmt$(s.usd)}</td>
+      <td style="font-size:11px">${s.cp}</td>
+      <td style="color:var(--t3)">${s.t}</td>
+      <td><span class="badge ${ss}">${s.status}</span></td>
+    </tr>`;
+  }).join('');
+
+  const tl = document.getElementById('treasury-table');
+  if(tl) tl.innerHTML = treasuryData.txLog.map(tx=>{
+    const ts=tx.status==='Complete'?'badge-green':'badge-amber';
+    return `<tr>
+      <td class="mono" style="color:var(--t3)">${tx.id}</td>
+      <td class="mono" style="color:var(--t3)">${tx.dt}</td>
+      <td style="font-size:11px;color:var(--t2)">${tx.type}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:${assetColors[tx.asset]||'#888'}"></div>${tx.asset}</div></td>
+      <td class="mono">${fmtQty(tx.qty,tx.asset)}</td>
+      <td class="mono">${fmt$(tx.usd)}</td>
+      <td style="font-size:11px;color:var(--t3)">${tx.from}</td>
+      <td style="font-size:11px;color:var(--t3)">${tx.to}</td>
+      <td class="mono" style="color:var(--blue2)">${tx.je}</td>
+      <td><span class="badge ${ts}">${tx.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRecon(){
+  const rt = document.getElementById('recon-table');
+  if(rt) rt.innerHTML = reconData.map(r=>{
+    const ss = r.status==='Matched'?'badge-green':'badge-red';
+    const m='<span class="recon-match">✓</span>', x='<span class="recon-break">✗</span>';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:7px;height:7px;border-radius:50%;background:${assetColors[r.asset]}"></div><strong>${r.asset}</strong></div></td>
+      <td class="mono">${fmtQty(r.book,r.asset)}</td>
+      <td class="mono">${fmtQty(r.ex,r.asset)}</td>
+      <td class="mono">${fmtQty(r.chain,r.asset)}</td>
+      <td style="text-align:center">${r.bookEx==='✓'?m:x}</td>
+      <td style="text-align:center">${r.bookCh==='✓'?m:x}</td>
+      <td style="text-align:center">${r.exCh==='✓'?m:x}</td>
+      <td><span class="badge ${ss}">${r.status}</span></td>
+      <td class="mono ${r.breakUsd>0?'down':''}">${r.breakUsd>0?fmt$(r.breakUsd):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const bl = document.getElementById('break-list');
+  if(bl) bl.innerHTML = breaks.map(b=>`
+    <div style="padding:12px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="mono" style="color:var(--red);font-weight:700">${b.id}</span>
+        <span class="badge badge-red">${b.asset} · ${fmt$(b.usd)} break</span>
+      </div>
+      <p style="font-size:11.5px;color:var(--t2);margin:6px 0">${b.desc}</p>
+      <div style="font-size:10px;color:var(--t3)">Assigned: ${b.owner} · Age: ${b.age}</div>
+    </div>`).join('');
+
+  const rh = document.getElementById('recon-history');
+  const hist=[
+    {dt:'Mar 15',rate:96.1,breaks:4},{dt:'Mar 14',rate:99.2,breaks:1},{dt:'Mar 13',rate:100,breaks:0},
+    {dt:'Mar 12',rate:98.7,breaks:2},{dt:'Mar 11',rate:100,breaks:0},{dt:'Mar 10',rate:97.4,breaks:3},{dt:'Mar 9',rate:99.8,breaks:1}
+  ];
+  if(rh) rh.innerHTML = hist.map(h=>{
+    const c=h.rate<98?'var(--red)':h.rate<99.5?'var(--gold2)':'var(--green)';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="width:44px;font-size:12px;color:var(--t3)">${h.dt}</span>
+      <div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:6px">
+        <div style="width:${h.rate}%;height:100%;background:${c};border-radius:4px"></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:${c};width:44px;text-align:right">${h.rate}%</span>
+      <span style="font-size:11px;color:var(--t3);width:60px">${h.breaks===0?'✓ Clean':`${h.breaks} break${h.breaks>1?'s':''}`}</span>
+    </div>`;
+  }).join('');
+}
+function runRecon(){
+  const btn=event.target;
+  btn.textContent='⏳ Running...';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='▶ Run Reconciliation';btn.disabled=false;renderRecon();},1500);
+}
+
+function renderSecurity(){
+  const gl = document.getElementById('guardrail-list');
+  if(gl) gl.innerHTML = guardrails.map(g=>`
+    <div class="guardrail">
+      <div class="gr-icon" style="background:${g.color}">${g.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:13px">${g.title}</strong>
+          <span class="badge badge-green">${g.status}</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);margin-top:4px">${g.desc}</p>
+      </div>
+    </div>`).join('');
+
+  const sod = document.getElementById('sod-table');
+  if(sod) sod.innerHTML = sodControls.map(s=>`<tr>
+    <td style="font-size:12px">${s.ctrl}</td>
+    <td><span class="badge badge-blue">${s.roleA}</span></td>
+    <td><span class="badge badge-purple">${s.roleB}</span></td>
+    <td style="color:var(--red);font-weight:700">${s.conflict}</td>
+    <td><span class="badge badge-green">${s.status}</span></td>
+  </tr>`).join('');
+
+  const at = document.getElementById('audit-table');
+  if(at) at.innerHTML = auditLog.map(a=>{
+    const uc=a.user==='system'?'var(--t3)':a.user==='gaurav.va'?'var(--gold2)':'var(--blue2)';
+    return `<tr>
+      <td class="mono" style="color:var(--t3);font-size:11px">${a.ts}</td>
+      <td style="color:${uc};font-weight:600;font-size:12px">${a.user}</td>
+      <td style="font-size:12px">${a.action}</td>
+      <td class="mono" style="color:var(--blue2)">${a.resource}</td>
+      <td class="mono" style="color:var(--t3)">${a.ip}</td>
+      <td class="mono" style="color:var(--t3);font-size:10px">${a.hash}…</td>
+    </tr>`;
+  }).join('');
+}
+
+function refreshFeed(){
+  const btn=event.target;
+  btn.textContent='⏳ Refreshing...';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='↻ Refresh Feed';btn.disabled=false;},1000);
+}
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+renderDashboard();
+</script>
+</body></html>
